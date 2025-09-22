@@ -13,49 +13,39 @@ def simulate_leslie(L, N0, years=50):
     return N
 
 
-# Варіант 1
-L1 = np.array([
-    [0.3, 2.5, 3.7, 0.3],
-    [0.5, 0, 0, 0],
-    [0, 0.9, 0, 0],
-    [0, 0, 0.75, 0]
-])
-N0_1 = np.array([100, 65, 78, 140])
-
-# Варіант 2
+# --- Варіант 2 ---
 L2 = np.array([
-    [0.4, 2.6, 3.8, 0.4],
-    [0.4, 0, 0, 0],
-    [0, 0.8, 0, 0],
-    [0, 0, 0.65, 0]
+    [0.4, 2.6, 3.8, 0.4],  # народжуваність
+    [0.4, 0, 0, 0],  # виживання 0->1
+    [0, 0.8, 0, 0],  # виживання 1->2
+    [0, 0, 0.65, 0]  # виживання 2->3
 ])
-N0_2 = np.array([900, 630, 745, 910])
 
-# Симуляція
-N1 = simulate_leslie(L1, N0_1)
+N0_2 = np.array([900, 630, 745, 910])  # початкові кількості
+
+# Симуляція на 50 років
 N2 = simulate_leslie(L2, N0_2)
 
+# Побудова графіку
+years = np.arange(N2.shape[0])
+plt.figure(figsize=(10, 6))
+for i in range(N2.shape[1]):
+    plt.plot(years, N2[:, i], label=f"Вікова група {i}")
+plt.plot(years, N2.sum(axis=1), 'k--', label="Загальна чисельність")
+plt.title("Динаміка популяції мишей (Варіант 2)")
+plt.xlabel("Роки")
+plt.ylabel("Кількість особин")
+plt.legend()
+plt.grid()
+plt.show()
 
-# Візуалізація
-def plot_population(N, title):
-    years = np.arange(N.shape[0])
-    plt.figure(figsize=(10, 6))
-    for i in range(N.shape[1]):
-        plt.plot(years, N[:, i], label=f"Вікова група {i}")
-    plt.plot(years, N.sum(axis=1), 'k--', label="Загальна чисельність")
-    plt.title(title)
-    plt.xlabel("Роки")
-    plt.ylabel("Кількість особин")
-    plt.legend()
-    plt.grid()
-    plt.show()
-
-
-plot_population(N1, "Динаміка популяції (Варіант 1)")
-plot_population(N2, "Динаміка популяції (Варіант 2)")
-
-# Аналіз стійкості
-eigvals1 = np.linalg.eigvals(L1)
+# Аналіз стійкості (головне власне значення λ)
 eigvals2 = np.linalg.eigvals(L2)
-print("λ (Варіант 1):", max(np.abs(eigvals1)))
-print("λ (Варіант 2):", max(np.abs(eigvals2)))
+lambda2 = max(np.abs(eigvals2))
+print("Домінантне власне значення λ (Варіант 2):", lambda2)
+if lambda2 > 1:
+    print("➡ Популяція має тенденцію до зростання.")
+elif lambda2 < 1:
+    print("➡ Популяція має тенденцію до вимирання.")
+else:
+    print("➡ Популяція стабільна.")
